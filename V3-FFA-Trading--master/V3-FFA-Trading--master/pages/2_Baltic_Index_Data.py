@@ -1,12 +1,13 @@
 import streamlit as st
-from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from io import StringIO
 
-st.set_page_config(page_title="FFA Trading Dashboard (Reverted)", layout="wide")
-st.title("Baltic Index & Fuel Price Data Viewer (Pre-Balmo)")
+# ================= REVERTED TO PRE-BALMO SIMPLE VIEWER =================
+st.set_page_config(page_title="Baltic Index & Fuel Viewer (Reverted)", layout="wide")
+st.title("Baltic Index & Fuel Price Data Viewer (Reverted)")
+st.caption("This is the simplified version before the Balmo / BOY estimator was added.")
 
 EXPECTED_COLUMNS = [
     'Date','C2','C3','C5','C7','C17','C2TCE','C3TCE','C5TCE','C7TCE','C17TCE',
@@ -14,7 +15,7 @@ EXPECTED_COLUMNS = [
 ]
 
 @st.cache_data(show_spinner=False)
-def load_csv(file_bytes: bytes) -> pd.DataFrame:
+def load_simple(file_bytes: bytes) -> pd.DataFrame:
     txt = file_bytes.decode('utf-8', errors='ignore')
     df_l = pd.read_csv(StringIO(txt))
     df_l.columns = [c.strip() for c in df_l.columns]
@@ -27,11 +28,10 @@ def load_csv(file_bytes: bytes) -> pd.DataFrame:
 
 up = st.file_uploader("Upload Baltic/Fuel CSV", type=['csv'])
 if up is None:
-    st.info("Upload a CSV to begin.")
+    st.info("Upload a CSV to view data (reverted mode).")
     st.stop()
-
 try:
-    df = load_csv(up.getvalue())
+    df = load_simple(up.getvalue())
 except Exception as e:
     st.error(f"Failed to parse file: {e}")
     st.stop()
@@ -85,6 +85,7 @@ with row2_col1:
     st.pyplot(fig_c, clear_figure=True)
 with row2_col2:
     fig_d, ax_d = plt.subplots(figsize=(8,3.2))
+    # Fuel spread example: Singapore - Rotterdam & Singapore - Zhoushan if present
     if 'Singapore' in fuel_cols and any(fc in fuel_cols for fc in ['Rotterdam','Zhoushan']):
         base = dfv[['Date','Singapore']].dropna().rename(columns={'Singapore':'Base'})
         spread_plotted = False
@@ -111,13 +112,11 @@ with row2_col2:
 st.caption("Panel layout: Index Group | Voyage Routes on first row; Fuel Prices | Fuel Spreads on second row.")
 
 st.subheader("Statistics")
-
 def _stats(cols):
     rows=[]
     for c in cols:
         s=dfv[c].dropna(); rows.append({'Column':c,'Count':int(s.count()),'Min':float(s.min()) if not s.empty else np.nan,'Max':float(s.max()) if not s.empty else np.nan,'Mean':float(s.mean()) if not s.empty else np.nan})
     return pd.DataFrame(rows)
-
 tab1,tab2,tab3 = st.tabs(["Indices","Voyage","Fuel"])
 with tab1: st.dataframe(_stats(index_cols), use_container_width=True, hide_index=True)
 with tab2: st.dataframe(_stats(voyage_cols), use_container_width=True, hide_index=True)
@@ -125,4 +124,23 @@ with tab3: st.dataframe(_stats(fuel_cols), use_container_width=True, hide_index=
 
 st.download_button("Download Filtered CSV", dfv.to_csv(index=False).encode('utf-8'), file_name="baltic_filtered.csv", mime='text/csv')
 
-st.caption("Pre-Balmo version. No estimator logic included.")
+st.stop()
+
+"""Baltic Index + Fuel Price Data Viewer (Pre-Balmo Version)
+
+Objective:
+    Visualize Baltic Exchange route & TCE indices alongside bunker fuel prices (Singapore, Rotterdam, Zhoushan).
+
+Expected CSV columns (case-insensitive Date detection):
+    Date, C2, C3, C5, C7, C17, C2TCE, C3TCE, C5TCE, C7TCE, C17TCE, C8, C9, C10, C14, C16, C5TC,
+    Singapore, Rotterdam, Zhoushan
+
+Features:
+ 1. File upload & cached parsing
+ 2. Sidebar date range filter
+ 3. Four chart panel (Indices, Voyages, Fuel, Fuel Spreads)
+ 4. Basic stats (count / min / max / mean) per group
+ 5. Download of filtered dataset
+
+This version intentionally excludes all Balmo / BOY estimator functionality.
+"""
