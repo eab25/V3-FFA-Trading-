@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from io import StringIO
 
-# ================= REVERTED TO PRE-BALMO SIMPLE VIEWER =================
-st.set_page_config(page_title="Baltic Index & Fuel Viewer (Reverted)", layout="wide")
-st.title("Baltic Index & Fuel Price Data Viewer (Reverted)")
-st.caption("This is the simplified version before the Balmo / BOY estimator was added.")
+# ================= SIMPLE VIEWER =================
+st.set_page_config(page_title="Baltic Index & Fuel Viewer", layout="wide")
+st.title("Baltic Index & Fuel Price Data Viewer")
+st.caption("Upload a CSV, filter by date, explore indices, routes, fuel & spreads.")
 
 EXPECTED_COLUMNS = [
     'Date','C2','C3','C5','C7','C17','C2TCE','C3TCE','C5TCE','C7TCE','C17TCE',

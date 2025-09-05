@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from io import StringIO
 
-st.set_page_config(page_title="FFA Trading Dashboard (Reverted)", layout="wide")
-st.title("Baltic Index & Fuel Price Data Viewer (Pre-Balmo)")
+st.set_page_config(page_title="FFA Trading Dashboard", layout="wide")
+st.title("Baltic Index & Fuel Price Data Viewer")
 
 EXPECTED_COLUMNS = [
     'Date','C2','C3','C5','C7','C17','C2TCE','C3TCE','C5TCE','C7TCE','C17TCE',
@@ -125,4 +125,4 @@ with tab3: st.dataframe(_stats(fuel_cols), use_container_width=True, hide_index=
 
 st.download_button("Download Filtered CSV", dfv.to_csv(index=False).encode('utf-8'), file_name="baltic_filtered.csv", mime='text/csv')
 
-st.caption("Pre-Balmo version. No estimator logic included.")
+st.caption("Core viewer: upload CSV, filter dates, view charts & stats.")
